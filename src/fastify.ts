@@ -23,7 +23,7 @@ export interface InternalFastifyInstance<Plugin extends TypedPlugin>
   extends fst.FastifyInstance {
   // Safe methods exist because the original Fastify instance includes these declarations.
   // Once typings are updated, these methods can be renamed to match the original method names.
-  safeRegister<P extends TypedPlugin >(
+  safeRegister<P extends TypedPlugin>(
     plugin: Plugin extends P['deps'] ? TypedFastifyPluginAsync<P> : never
   ): asserts this is FastifyInstance<P & Plugin>;
 

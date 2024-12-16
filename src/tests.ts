@@ -12,6 +12,7 @@ const outer = safeFp(async (instance: FastifyInstance) => {
   return instance;
 });
 
+// Plugin authors would export their plugin and a typing for those who want to add it as a dependency to another plugin.
 export type DependencyType = PluginType<typeof dependency>;
 const dependency = safeFp(async (instance: FastifyInstance) => {
   instance.safeDecorate('dep', 321);
