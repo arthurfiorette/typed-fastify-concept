@@ -21,6 +21,7 @@ instance.safeDecorateRequest('testReq', { num: 1 });
 instance.safeDecorateReply('testRep', { str: '' });
 
 instance.safeGet('/', {}, function (request, reply) {
+  // everything valid!
   this.inner;
   this.outer;
   reply.testRep.str;
