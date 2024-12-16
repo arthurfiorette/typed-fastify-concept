@@ -1,0 +1,17 @@
+{
+  "name": "typed-fastify-concept",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^5.2.0",
+    "fastify-plugin": "^5.0.1",
+    "typescript": "^5.7.2"
+  }
+}
