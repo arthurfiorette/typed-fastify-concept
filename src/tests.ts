@@ -1,4 +1,4 @@
-import { FastifyInstance, safeFastify } from './fastify';
+import { FastifyInstance, safeFastify, PluginType } from './fastify';
 import { safeFp } from './fastify-plugin';
 
 const innerPlugin = safeFp(async (instance: FastifyInstance) => {
@@ -6,24 +6,50 @@ const innerPlugin = safeFp(async (instance: FastifyInstance) => {
   return instance;
 });
 
-const plugin = safeFp(async (instance: FastifyInstance) => {
+const outer = safeFp(async (instance: FastifyInstance) => {
   instance.safeDecorate('outer', true);
   instance.safeRegister(innerPlugin);
   return instance;
 });
 
+export type DependencyType = PluginType<typeof dependency>;
+const dependency = safeFp(async (instance: FastifyInstance) => {
+  instance.safeDecorate('dep', 321);
+  return instance;
+});
+
+// anything that matches (instance: FastifyInstance<{ fastify: { dep: number } }>)
+const withDependency = safeFp(async (instance: FastifyInstance<DependencyType>) => {
+  // works!
+  instance.dep;
+
+  instance.safeDecorate('withDep', 'hello');
+
+  return instance;
+});
+
 const instance: FastifyInstance = safeFastify();
 
-instance.safeRegister(plugin);
+instance.safeRegister(outer);
+
+//@ts-expect-error - inner is not registered (yet)
+instance.safeRegister(withDependency);
+
+instance.safeRegister(dependency);
+
+instance.safeRegister(withDependency);
 
 instance.safeDecorateRequest('testReq', { num: 1 });
 
 instance.safeDecorateReply('testRep', { str: '' });
 
+// everything valid!
 instance.safeGet('/', {}, function (request, reply) {
-  // everything valid!
   this.inner;
   this.outer;
+  this.dep;
+  this.withDep;
+
   reply.testRep.str;
   request.testReq.num;
 });

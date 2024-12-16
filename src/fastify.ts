@@ -5,6 +5,8 @@ export type TypedPlugin = {
   fastify?: Record<string, unknown>;
   request?: Record<string, unknown>;
   reply?: Record<string, unknown>;
+  // dependencies of this plugin
+  deps?: TypedPlugin;
 };
 
 // Since an interface cannot extend a generic parameter field, we need to maintain two types:
@@ -21,9 +23,9 @@ export interface InternalFastifyInstance<Plugin extends TypedPlugin>
   extends fst.FastifyInstance {
   // Safe methods exist because the original Fastify instance includes these declarations.
   // Once typings are updated, these methods can be renamed to match the original method names.
-  safeRegister<P extends TypedPlugin>(
-    plugin: TypedFastifyPluginAsync<P>
-  ): asserts this is FastifyInstance<Plugin & P>;
+  safeRegister<P extends TypedPlugin >(
+    plugin: Plugin extends P['deps'] ? TypedFastifyPluginAsync<P> : never
+  ): asserts this is FastifyInstance<P & Plugin>;
 
   safeDecorate<K extends string, P>(
     key: K,
@@ -65,3 +67,9 @@ export type TypedRouteHandlerMethod<Plugin extends TypedPlugin = Record<never, n
 export type TypedFastifyPluginAsync<Plugin extends TypedPlugin = Record<never, never>> = (
   instance: FastifyInstance<Plugin>
 ) => Promise<void>;
+
+// New helpers! (but obviously with better names xd)
+export type PluginType<T extends TypedFastifyPluginAsync> =
+  T extends TypedFastifyPluginAsync<infer P> ? Simplify<P> : never;
+
+type Simplify<T> = { [Key in keyof T]: T[Key] };
